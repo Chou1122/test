@@ -498,6 +498,32 @@ class AStarFoodSearchAgent(SearchAgent):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
         self.searchType = FoodSearchProblem
 
+def farthestFood(walls, start, foodList):
+    res = 0
+
+    myQueue = util.Queue()
+    myQueue.push((start,0))
+    visited = []
+
+    while not myQueue.isEmpty(): 
+        currPos, val = myQueue.pop()
+        x, y = currPos
+
+        if currPos in foodList:
+            res = val
+        
+        for move in [Directions.NORTH, Directions.EAST, Directions.SOUTH, Directions.WEST]:
+            dx, dy = Actions.directionToVector(move)
+            _x = int(x + dx)
+            _y = int(y + dy)
+            nextPos = (_x, _y)
+            
+            if not walls[_x][_y] and nextPos not in visited:
+                visited.append(nextPos)
+                myQueue.push((nextPos, val + 1))
+            
+    return res
+
 def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     Your heuristic for the FoodSearchProblem goes here.
@@ -529,48 +555,24 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
 
-    res = 0
-    listFood = foodGrid.asList()
-    remainingFood = foodGrid.asList()
-    minDis = -1
-    delFood = ()
-    dis = 0
+    # res = -1
+    # listFood = foodGrid.asList()
+    # dis = 0
 
-    if (len(listFood) == 0):
-        return 0
+    # if (len(listFood) == 0):
+    #     return 0
 
-    #print("str: ", position)
-    # print(foodGrid)
-    # print("-----")
-    # print(problem.walls)
-    # print(foodGrid.asList())
-
-    # while len(listFood) != 0 :
-    #     minDis = -1
-
-    #     for food in listFood:
-    #         dis = util.manhattanDistance(position,food)
-    #         if minDis == -1 or minDis > dis:
-    #             minDis = dis
-    #             delFood = food
-        
-    #     res = res + minDis
-    #     position = delFood
-    #     listFood.remove(delFood)
+    # for food in listFood:
+    #     dis = util.manhattanDistance(position,food)
+    #     if res < dis:
+    #         res = dis
 
     # return res
 
+    if (len(foodGrid.asList()) == 0):
+        return 0
     
-    # distanceList = []
-
-    # for food in remainingFood:
-    #     #append to the distance list the manhattan distance
-    #     distanceList.append(util.manhattanDistance(position, food))
-
-    # #find the maximum distance food pellet and return it
-    # mDistance = max(distanceList)
-
-    # return mDistance # Default to trivial solution
+    return farthestFood(problem.walls,position,foodGrid.asList())
 
     return 0
 
@@ -603,6 +605,26 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
+        myQueue = util.Queue()
+        myQueue.push((startPosition,[]))
+        visited = [startPosition]
+
+        while not myQueue.isEmpty():
+            currPos, actions = myQueue.pop()
+            x, y = currPos
+
+            if food[x][y]:
+                return actions
+            
+            for move in [Directions.EAST, Directions.NORTH, Directions.WEST, Directions.SOUTH]:
+                dx, dy = Actions.directionToVector(move)
+                _x = int(x + dx)
+                _y = int(y + dy)
+                newPos = (_x,_y)
+                if not walls[_x][_y] and newPos not in visited:
+                    visited.append(newPos)
+                    myQueue.push((newPos, actions + [move]))
+        
         util.raiseNotDefined()
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -637,7 +659,6 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         complete the problem definition.
         """
         x,y = state
-
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
 

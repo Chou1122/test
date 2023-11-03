@@ -130,7 +130,7 @@ def breadthFirstSearch(problem: SearchProblem):
     myQueue.push((startState,[], 0))
 
     while not myQueue.isEmpty():
-        currState, currAction,currCost = myQueue.pop()
+        currState, currAction, currCost = myQueue.pop()
 
         if not currState in visited:
             visited.append(currState)
